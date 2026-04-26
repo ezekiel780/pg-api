@@ -53,8 +53,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "ledger.urls"
-WSGI_APPLICATION = "ledger.wsgi.application"
+ROOT_URLCONF = "core.urls"
+WSGI_APPLICATION = "core.wsgi.application"
 
 TEMPLATES = [
     {

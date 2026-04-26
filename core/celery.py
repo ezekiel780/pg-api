@@ -1,22 +1,9 @@
-"""
-Celery app initialization for Ledger Reconciliation API.
-
-Worker startup (from project root):
-  celery -A ledger worker -Q reconciliation,celery -l info --concurrency=4
-
-Beat scheduler (runs periodic tasks):
-  celery -A ledger beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-
-Combined (development only — not recommended in production):
-  celery -A ledger worker --beat -l info
-"""
-
 import os
 from celery import Celery
 from celery.signals import setup_logging
 
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ledger.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 
 app = Celery("ledger_reconciliation")
 
