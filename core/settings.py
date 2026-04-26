@@ -141,14 +141,17 @@ if IS_SUPABASE:
 
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
-CELERY_BROKER_URL = REDIS_URL
-CELERY_RESULT_BACKEND = REDIS_URL
+# Prefer explicit Celery URLs when provided (e.g. in Docker/Render),
+# otherwise fall back to REDIS_URL for local development.
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", REDIS_URL)
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", REDIS_URL)
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "Africa/Lagos"
 CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_IGNORE_RESULT = True
 
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 
