@@ -23,8 +23,7 @@ echo "==> Starting Celery worker in background..."
 celery -A core worker \
     --loglevel=info \
     --concurrency=1 \
-    --queues=reconciliation,celery \
-    --detach
+    --queues=reconciliation,celery &
 
 echo "==> Starting Gunicorn on port ${PORT}..."
 exec gunicorn core.wsgi:application \

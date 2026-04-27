@@ -7,21 +7,31 @@ from .views import (
 )
 
 urlpatterns = [
-    path("reconcile/", ReconcileView.as_view(), name="reconcile-create"),
-
+    # POST — submit two CSV files
     path(
-        "status/<str:task_id>/",
-        ReconciliationStatusView.as_view(),
-        name="reconcile-status"
+        "reconcile/",
+        ReconcileView.as_view(),
+        name="reconcile-create",
     ),
+
+    # GET — list all jobs (must be before <task_id> pattern)
     path(
         "reconcile/history/",
         ReconciliationListView.as_view(),
-        name="reconcile-history"
+        name="reconcile-history",
     ),
+
+    # GET — poll single job status
+    path(
+        "reconcile/<str:task_id>/",
+        ReconciliationStatusView.as_view(),
+        name="reconcile-status",
+    ),
+
+    # POST — cancel a job
     path(
         "reconcile/<str:task_id>/cancel/",
         ReconciliationCancelView.as_view(),
-        name="reconcile-cancel"
+        name="reconcile-cancel",
     ),
 ]
