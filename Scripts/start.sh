@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-# ── Skip DB wait on Render (Supabase is always available) ────
 if [ -z "$DATABASE_URL" ]; then
     DB_HOST="${DB_HOST:-db}"
     DB_PORT="${DB_PORT:-5432}"
@@ -14,13 +13,18 @@ else
     echo "==> Using DATABASE_URL — skipping wait."
 fi
 
-# ── Collect static files ──────────────────────────────────────
 echo "==> Collecting static files..."
 python manage.py collectstatic --noinput
 
-# ── Run migrations ────────────────────────────────────────────
 echo "==> Running migrations..."
 python manage.py migrate --noinput
+
+echo "==> Starting Celery worker in background..."
+celery -A core worker \
+    --loglevel=info \
+    --concurrency=1 \
+    --queues=reconciliation,celery \
+    --detach
 
 echo "==> Starting Gunicorn on port ${PORT}..."
 exec gunicorn core.wsgi:application \
@@ -29,4 +33,4 @@ exec gunicorn core.wsgi:application \
     --timeout  120 \
     --access-logfile - \
     --error-logfile  -
-  
+    
