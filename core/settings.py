@@ -1,4 +1,5 @@
 import os
+import ssl
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -126,12 +127,6 @@ SPECTACULAR_SETTINGS = {
     },
     "SERVE_INCLUDE_SCHEMA": False,
 }
-
-# =========================
-# DATABASE
-# Supports any PostgreSQL URL — Render, local Docker.
-# SSL controlled by DB_SSL_MODE env var — nothing hardcoded.
-# =========================
 DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
 
 if not DATABASE_URL:
@@ -154,15 +149,10 @@ DATABASES = {
     }
 }
 
-# SSL mode — set DB_SSL_MODE=require for Render Postgres.
-# Leave unset for local Docker Postgres (no SSL needed).
 _db_ssl_mode = os.environ.get("DB_SSL_MODE", "").strip()
 if _db_ssl_mode:
     DATABASES["default"]["OPTIONS"] = {"sslmode": _db_ssl_mode}
 
-# =========================
-# CELERY + UPSTASH TLS
-# =========================
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
 
 CELERY_BROKER_URL     = os.environ.get("CELERY_BROKER_URL", REDIS_URL)
@@ -173,30 +163,25 @@ CELERY_TASK_SERIALIZER   = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE          = "Africa/Lagos"
 
-# Acknowledge only after completion — no lost jobs on worker crash
 CELERY_TASK_ACKS_LATE = True
 
-# One task at a time per worker — stops large CSVs starving the queue
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 
-# Restart worker if it exceeds 1 GB RAM
-CELERY_WORKER_MAX_MEMORY_PER_CHILD = 1_000_000  # kilobytes
+CELERY_WORKER_MAX_MEMORY_PER_CHILD = 1_000_000
 
-# Retry broker connection on startup — worker may start before Redis is ready
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BROKER_CONNECTION_MAX_RETRIES = 5
 
-# FIX: Upstash uses TLS (rediss://).
-# Without these SSL dicts Celery opens a plain TCP connection and Upstash
-# drops it, causing "Retry limit exceeded" RuntimeError.
-# Conditional — only activates for rediss:// so local redis:// works unchanged.
 if CELERY_BROKER_URL.startswith("rediss://"):
-    CELERY_BROKER_USE_SSL = {"ssl_cert_reqs": "required"}
+    CELERY_BROKER_USE_SSL = {
+        "ssl_cert_reqs": ssl.CERT_NONE
+    }
 
 if CELERY_RESULT_BACKEND.startswith("rediss://"):
-    CELERY_REDIS_BACKEND_USE_SSL = {"ssl_cert_reqs": "required"}
+    CELERY_REDIS_BACKEND_USE_SSL = {
+        "ssl_cert_reqs": ssl.CERT_NONE
+    }
 
-# Heavy reconciliation tasks go to their own queue
 CELERY_TASK_ROUTES = {
     "reconciliation.tasks.run_reconciliation": {"queue": "reconciliation"},
 }
