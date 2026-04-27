@@ -164,29 +164,16 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE          = "Africa/Lagos"
 
 CELERY_TASK_ACKS_LATE = True
-
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
-
 CELERY_WORKER_MAX_MEMORY_PER_CHILD = 1_000_000
 
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_BROKER_CONNECTION_MAX_RETRIES = 5
 
-if CELERY_BROKER_URL.startswith("rediss://"):
-    CELERY_BROKER_USE_SSL = {
-        "ssl_cert_reqs": ssl.CERT_NONE
-    }
-
-if CELERY_RESULT_BACKEND.startswith("rediss://"):
-    CELERY_REDIS_BACKEND_USE_SSL = {
-        "ssl_cert_reqs": ssl.CERT_NONE
-    }
-
 CELERY_TASK_ROUTES = {
     "reconciliation.tasks.run_reconciliation": {"queue": "reconciliation"},
 }
 
-# Nightly cleanup of uploaded CSV files
 from celery.schedules import crontab  # noqa: E402
 
 CELERY_BEAT_SCHEDULE = {
@@ -196,6 +183,7 @@ CELERY_BEAT_SCHEDULE = {
         "args": [],
     },
 }
+
 
 # =========================
 # FILE UPLOADS
