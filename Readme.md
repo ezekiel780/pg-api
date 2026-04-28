@@ -1,6 +1,6 @@
 # 📊 Transaction Ledger Reconciliation System
 
-A full-stack financial reconciliation platform that detects discrepancies between two source system CSV transaction files. Built with Django, Celery, React, and TypeScript.
+A full-stack financial reconciliation platform that detects discrepancies between two source system CSV transaction files. Built with Django, Celery, Redis, React, and TypeScript.
 
 ---
 
